@@ -1,0 +1,39 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #f7fffe;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+}
+
+#editor {
+    background: white;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    width: 60vw;
+    margin: 40px auto;
+    display: flex;
+    height: 250px;
+}
+
+#toolbar {
+    display: inline-flex;
+    margin-top: 40px;
+    border: 2px solid #e8e8e8;
+    border-radius: 3px;
+    >p {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: 0.2s;
+        &:hover {
+            background: #e8e8e8;
+        }
+        &.selected {
+            background: #626262;
+            color: #ffffff;
+        }
+    }
+}
