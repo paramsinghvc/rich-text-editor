@@ -30,8 +30,11 @@ export class Toolbar {
         const selection = _DOMHelpers.getUserSelection();
         if (selection.rangeCount > 0) {
             console.log(this.selectedRange);
-            selection.removeAllRanges();
-            selection.addRange(this.selectedRange);
+            if (this.selectedRange) {
+
+                selection.removeAllRanges();
+                selection.addRange(this.selectedRange);
+            }
         }
     }
 
@@ -76,13 +79,30 @@ export class Toolbar {
                             /** If no strong node is found in the ancestors, it means we need to bold the selected text/element node */
                             if (currentNode.nodeType === NODE_TYPE.TEXT_NODE) { // Text Node
                                 const newTextContent = currentNode.textContent;
-                                newNode = DOM.createElement('strong');
-                                const textNode = DOM.createTextNode(newTextContent.slice(range.startOffset, range.endOffset));
-                                newNode.appendChild(textNode);
-                                range.deleteContents();
-                                range.insertNode(newNode);
-                                /** Set new Range to be selected */
-                                this.selectedRange = _DOMHelpers.createRangeFromNode(_DOMHelpers.getTextLeafNode(newNode));
+
+                                newNode = _DOMHelpers.createElement('strong');
+                                if (range.collapsed) {
+                                    const { word, startIndex, endIndex } = _DOMHelpers.getWordAtIndex(newTextContent, range.startOffset);
+                                    const preString = newTextContent.slice(0, startIndex);
+                                    const postString = newTextContent.slice(endIndex);
+
+                                    const wordTextNode = _DOMHelpers.createTextNode(word);
+
+                                    newNode.appendChild(wordTextNode);
+                                    currentNode.parentNode.replaceChild(newNode, currentNode);
+                                    /* insertAdjacentText needs given node to have a parent */
+                                    newNode.insertAdjacentText('beforebegin', preString);
+                                    newNode.insertAdjacentText('afterend', postString);
+                                    this.selectedRange = _DOMHelpers.createRangeFromNode(wordTextNode);
+
+                                } else {
+                                    const textNode = _DOMHelpers.createTextNode(newTextContent.slice(range.startOffset, range.endOffset));
+                                    newNode.appendChild(textNode);
+                                    range.deleteContents();
+                                    range.insertNode(newNode);
+                                    /** Set new Range to be selected */
+                                    this.selectedRange = _DOMHelpers.createRangeFromNode(_DOMHelpers.getTextLeafNode(newNode));
+                                }
                             } else if (currentNode.nodeType === NODE_TYPE.ELEMENT_NODE) {
                                 _DOMHelpers.encloseNodeWithTag(currentNode, 'STRONG');
                                 this.selectedRange = _DOMHelpers.createRangeFromNode(_DOMHelpers.getTextLeafNode(currentNode));
@@ -95,7 +115,7 @@ export class Toolbar {
                     break;
                 case 'I':
                     {
-                        const range: Range = this.selectedRange || _DOMHelpers.getUserSelectionRange();
+                        const range: Range =  _DOMHelpers.getUserSelectionRange();
                         const currentNode = range.startContainer;
 
                         let emNode, newNode;

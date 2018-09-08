@@ -21,9 +21,33 @@ export class DOMHelpers {
         this._window = window;
     }
 
-    get doc() {
-        return
+    /**
+     * Given a caret position in between a text node, returns the whole word present in there.
+     * @param str 
+     * @param index 
+     */
+    getWordAtIndex(str: string, index: number) {
+        const preTextMatch = str.slice(0, index).match(/\S+$/);
+        const postTextMatch = str.slice(index).match(/\S+/);
+
+        let preText = '', postText = '', startIndex, endIndex;
+
+        if (preTextMatch && preTextMatch.length > 0) {
+            preText = preTextMatch[0];
+            startIndex = preTextMatch['index'];
+        }
+        if (postTextMatch && postTextMatch.length > 0) {
+            postText = postTextMatch[0];
+        }
+
+        const word = `${preText}${postText}`;
+        return {
+            word,
+            startIndex,
+            endIndex: startIndex + word.length
+        };
     }
+
     /**
      * Helper for creating a document element
      * @param type 
